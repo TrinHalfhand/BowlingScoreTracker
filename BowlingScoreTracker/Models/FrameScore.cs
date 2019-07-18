@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace BowlingScoreTracker.Models
 {
@@ -11,7 +13,34 @@ namespace BowlingScoreTracker.Models
     public class FrameScores
     {
         public List<FrameScore> Frames { get; set; }
+        [DefaultValue(Status.Unknown)]
         public Status GameStatus { get; set; }
+        public FrameScore CurrentFrame
+        {
+            get
+            {
+                return Frames[Frames.Count - 1];
+            }
+        }
+
+        public FrameScore NextFrame
+        {
+            get
+            {
+                return CurrentFrame;
+            }
+            set
+            {
+                value.Rolls = new List<int>();
+                value.FrameNumber = Frames.Count + 1;
+                Frames.Add(value);
+
+                if (Frames.Count <= 10)
+                    GameStatus = Status.Active;
+                else
+                    GameStatus = Status.Complete;
+            }
+        }
     }
 
     public enum BonusType
@@ -22,17 +51,11 @@ namespace BowlingScoreTracker.Models
     }
     public class FrameScore
     {
-        public List<int> Rolls {
-            get
-            {
-                return Rolls;
-            }
-            set
-            {
-                if (Rolls == null)
-                    Rolls = new List<int>();
-            }
-        }
+        [Range(0, 10, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        public int Roll { set {
+                Rolls.Add(value); } }
+        public List<int> Rolls { get; set; }
+        public int FrameNumber { get; set; }
         private BonusType BonusType
         {
             get

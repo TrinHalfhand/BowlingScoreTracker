@@ -25,20 +25,17 @@ namespace TestBowlingScoreTracker
         [DataTestMethod]
         public void TestRolls_BeforeGameCreation(int roll, HttpStatusCode result)
         {
-            HttpResponseMessage rollResult = bowlingGameAPI.Roll(roll);
+            var rollResult = bowlingGameAPI.Roll(roll);
 
             Assert.IsNotNull(rollResult);
-            Assert.AreEqual(rollResult.StatusCode, result);
+            Assert.AreEqual(rollResult.Result.StatusCode, result);
         }
 
         [DataRow(HttpStatusCode.BadRequest)]
         [DataTestMethod]
         public void TestScoreByFrame_AfterGameCreation(HttpStatusCode result)
         {
-            HttpResponseMessage scoreResult = bowlingGameAPI.GetScoreByFrame();
-
-            Assert.IsNotNull(scoreResult);
-            Assert.AreEqual(scoreResult.StatusCode, result);
+           
         }
 
         [DataRow(HttpStatusCode.BadRequest)]
@@ -67,15 +64,37 @@ namespace TestBowlingScoreTracker
 
         [DataRow(1, HttpStatusCode.Accepted)]
         [DataRow(-1, HttpStatusCode.BadRequest)]
-        [DataRow(10, HttpStatusCode.BadRequest)]
+        [DataRow(11, HttpStatusCode.BadRequest)]
         [DataRow(9, HttpStatusCode.Accepted)]
         [DataTestMethod]
-        public void TestRolls(int roll, HttpStatusCode result)
+        public void TestSingleRoll(int roll, HttpStatusCode result)
         {
-            HttpResponseMessage rollResult = bowlingGameAPI.Roll(roll);
+            TestCreatingANewGame(HttpStatusCode.Created, 0);
+            var rollResult = bowlingGameAPI.Roll(roll);
 
             Assert.IsNotNull(rollResult);
-            Assert.AreEqual(rollResult.StatusCode, result);
+            Assert.AreEqual(rollResult.Result.StatusCode, result);
+        }
+
+        [DataRow(new int[] {1, 10}, HttpStatusCode.BadRequest, 1)]
+        [DataRow(new int[] { -1, 10 }, HttpStatusCode.Accepted, 2)]
+        [DataRow(new int[] { 1, 11 }, HttpStatusCode.BadRequest, 1)]
+        [DataRow(new int[] { 1, 9, 10, 10, 9, 1 }, HttpStatusCode.Accepted, 5)]
+        [DataTestMethod]
+        public void TestMultipleRolls(int[] rolls, HttpStatusCode result, int currentFrameNumber)
+        {
+            HttpResponseMessage finalStatus = null;
+            TestCreatingANewGame(HttpStatusCode.Created, 0);
+
+            foreach (var roll in rolls)
+            {
+                var rollResult = bowlingGameAPI.Roll(roll);
+                Assert.IsNotNull(rollResult);
+                finalStatus = rollResult.Result;
+            }
+
+            //should confirm with scorebyframe if frame count matches
+            Assert.AreEqual(finalStatus.StatusCode, result);
         }
 
         [DataRow(10, 1, new int[] { 1, 9 })]
