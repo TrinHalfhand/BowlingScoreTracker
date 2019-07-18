@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.2",
-    "signature": "55fc4c4ba16c304c89a8df8f8244f51413f0add2"
+    "signature": "74ea4e38ba4cc31dd8f56fe2c80bbe6eae71deea"
   },
   "compilationOptions": {},
   "targets": {
@@ -1060,6 +1060,7 @@
           }
         }
       },
+      "Microsoft.VisualStudio.Azure.Containers.Tools.Targets/1.7.9": {},
       "Microsoft.Win32.Primitives/4.0.1": {
         "dependencies": {
           "System.Runtime": "4.3.0"
@@ -1706,7 +1707,8 @@
       "BowlingScoreTracker/1.0.0": {
         "dependencies": {
           "Microsoft.AspNetCore": "2.2.0",
-          "Microsoft.AspNetCore.Mvc.Core": "2.2.5"
+          "Microsoft.AspNetCore.Mvc.Core": "2.2.5",
+          "Microsoft.VisualStudio.Azure.Containers.Tools.Targets": "1.7.9"
         },
         "runtime": {
           "BowlingScoreTracker.dll": {}
@@ -2146,6 +2148,13 @@
       "sha512": "sha512-PogSQ40KgkZjEBdC6KBGpMtuvFFCIdoJAMmK7CAHWyTXCfN1cPN8j0TFJKh+LneSg+y0QQDP23STMF609KhHQw==",
       "path": "microsoft.testplatform.testhost/16.2.0",
       "hashPath": "microsoft.testplatform.testhost.16.2.0.nupkg.sha512"
+    },
+    "Microsoft.VisualStudio.Azure.Containers.Tools.Targets/1.7.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qctOe/wBGvigq5c0GSjzR8TUgdpQv7YhHugiUyvBHTXhOpKKbhVhrsXqy4fEHZ4kVU5498ywsigEbrQ22ps4ew==",
+      "path": "microsoft.visualstudio.azure.containers.tools.targets/1.7.9",
+      "hashPath": "microsoft.visualstudio.azure.containers.tools.targets.1.7.9.nupkg.sha512"
     },
     "Microsoft.Win32.Primitives/4.0.1": {
       "type": "package",
