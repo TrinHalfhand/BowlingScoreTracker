@@ -33,9 +33,12 @@ namespace TestBowlingScoreTracker
 
         [DataRow(HttpStatusCode.BadRequest)]
         [DataTestMethod]
-        public void TestScoreByFrame_AfterGameCreation(HttpStatusCode result)
+        public void TestScoreByFrame_BeforeGameCreation(HttpStatusCode result)
         {
-           
+            HttpResponseMessage scoreResult = bowlingGameAPI.GetScoreByFrame();
+
+            Assert.IsNotNull(scoreResult);
+            Assert.AreEqual(scoreResult.StatusCode, result);
         }
 
         [DataRow(HttpStatusCode.BadRequest)]
@@ -67,7 +70,7 @@ namespace TestBowlingScoreTracker
         [DataRow(11, HttpStatusCode.BadRequest)]
         [DataRow(9, HttpStatusCode.Accepted)]
         [DataTestMethod]
-        public void TestSingleRoll(int roll, HttpStatusCode result)
+        public void TestRolls_Single(int roll, HttpStatusCode result)
         {
             TestCreatingANewGame(HttpStatusCode.Created, 0);
             var rollResult = bowlingGameAPI.Roll(roll);
@@ -81,7 +84,7 @@ namespace TestBowlingScoreTracker
         [DataRow(new int[] { 1, 11 }, HttpStatusCode.BadRequest, 1)]
         [DataRow(new int[] { 1, 9, 10, 10, 9, 1 }, HttpStatusCode.Accepted, 5)]
         [DataTestMethod]
-        public void TestMultipleRolls(int[] rolls, HttpStatusCode result, int currentFrameNumber)
+        public void TestRolls_Multiple(int[] rolls, HttpStatusCode result, int currentFrameNumber)
         {
             HttpResponseMessage finalStatus = null;
             TestCreatingANewGame(HttpStatusCode.Created, 0);
