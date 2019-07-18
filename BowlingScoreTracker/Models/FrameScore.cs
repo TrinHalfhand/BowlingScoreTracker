@@ -56,7 +56,7 @@ namespace BowlingScoreTracker.Models
                 Rolls.Add(value); } }
         public List<int> Rolls { get; set; }
         public int FrameNumber { get; set; }
-        private BonusType BonusType
+        public BonusType BonusType
         {
             get
             {

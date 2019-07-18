@@ -1,7 +1,7 @@
 /******************************
  	Summary
 ******************************/
-This is a bowl score tracking API designed to keep tabs on each stage of 10 frame game. This can be 1 to 2 rolls per frame with a special exception of a potential 3rd roll in 10th frame. This will be an API and return very generic responses with standard API error messages from the 200 (success) and 400 (exceptions) groups. 
+This is a bowl score tracking API designed to keep tabs on each stage of 10 frame game. This can be 1 to 2 rolls per frame with a special exception of a potential 3rd roll in 10th frame. This will be an API and return very generic responses with standard API error messages from the 200 (success) and 400 (exception) groups. Body of the message if a data request will contain json with all of the model data needed contained in it's contents. 
 
 Bowling Terminology
 Spare: A spare is when the player knocks down all 10 pins in two tries. 
@@ -9,44 +9,53 @@ Strike: A strike is when the player knocks down all 10 pins on his first try.
 Turkey: Three strikes in a row
 
 In review:
-?	Should this application track multiple players? 
-?	Should it track the person's name for the display output?
-?	Will this be session based or need to cache?
+?	Should this application track multiple players? Future.
+?	Should it track the person's name for the display output? Future.
+?	Will this be session based or need to cache? Currently it is while the api is active.
 
 /****************************
  	Functions
 ****************************/
 Start(): POST only
-?	Success returns a 201 Created
+- Success returns a 201 Created
 
 In review:
-?	Should this erase the scores tracked up to this point? 
-?	Should I I include a validation to insure it does not erase mid game?
-		If yes what error code would be ideal? Thinking 409 Conflict
+?	Should this erase the scores tracked up to this point? Currently does.
+?	Should include a validation to insure it does not erase mid game? Currently it does.
+		If yes what error code would be ideal? Currently it uses a 409 Conflict
 
-Roll(numberRolled [Array or single value?]): POST only
-?	Current design will take one number for each time called
-?	Success returns a 202 Accepted + status (last of the game?)
-?	Failed validation returns a 400 Bad Request (roll > 10, roll < 0 or total > 10)
+Roll(numberRolled): POST only
+- Current design will take one number for each time called
+- Success returns a 202 Accepted + status (last of the game?)
+- Failed validation returns a 400 Bad Request 
+         (roll > 10, roll < 0 or total of first two rolls > 10)
 
 In review:
 ?	Should this take more numbers then one per call?
 
 ScoreByFrame(): GET only
-?	Returns a collection of frame models
-?	Model will have:
+- Returns a collection of frames
+- Model will have:
 	1) Rolls in an array of one to three rolls that occurred during the frame
 	2) Total = scoring up to this frame
+	3) FrameNumber indicating what frame it's on
+	4) BonusType = if the frame has a spare or strike in it which effects scoring.
 
 In review:
-?	Data Structure format, do you prefer something generic to allow other languages to use this function, is there a specific format you had in mind?
+?	Data Structure format; do you prefer something generic to allow other languages to use this function, is there a specific format you had in mind?
 ?	Would we ever want to know the score of a different frame? Another Player?
 ?	Should there be a special mention when a person has three strikes in the 10th frame (Turkey)?
+
 TotalScore(): GET only
+- Returns the final current frame score or complete game score
+
+In review:
 ?	Do I need to include an identity of who's total score 
 ?	Should this just return the total score?
 ?	Should there be a special mention when a person have scored a perfect game (300)?
 
+Other options
+In review:
 ?	Will there be a need to update a frame roll(s)? 
 ?	Clear a frame but not the whole game?
 
