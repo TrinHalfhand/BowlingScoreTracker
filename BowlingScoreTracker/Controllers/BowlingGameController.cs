@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BowlingScoreTracker.Models;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace BowlingScoreTracker.Controllers
 {
@@ -7,6 +10,8 @@ namespace BowlingScoreTracker.Controllers
     [ApiController]
     public class BowlingGameController : ControllerBase
     {
+        private FrameScores currentFrame = new FrameScores();
+
         [HttpGet]
         public string Get()
         {
@@ -28,11 +33,28 @@ namespace BowlingScoreTracker.Controllers
         }
 
         [HttpPost("CreateNewGame")]
-        public HttpResponseMessage CreateNewGame()
+        public async Task<HttpResponseMessage> CreateNewGame()
         {
             //validate that not in middle of game
-            //clear frames and/or start new game
-            return null;
+            if (currentFrame.GameStatus == Status.Active)
+                return await Task<HttpResponseMessage>.Factory.StartNew(() =>
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Conflict);
+                });
+            else
+            {
+                //clear frames and/or start new game
+                if (currentFrame.Frames != null)
+                    currentFrame.Frames = null;
+
+                currentFrame.Frames = new System.Collections.Generic.List<FrameScore>();
+                currentFrame.GameStatus = Status.Active;
+
+                return await Task<HttpResponseMessage>.Factory.StartNew(() =>
+                {
+                    return new HttpResponseMessage(HttpStatusCode.Created);
+                });
+            }
         }
 
         [HttpPost("Roll/{roll}")]

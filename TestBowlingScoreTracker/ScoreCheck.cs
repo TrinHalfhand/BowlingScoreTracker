@@ -51,15 +51,18 @@ namespace TestBowlingScoreTracker
             Assert.AreEqual(scoreResult.StatusCode, result);
         }
 
-        [DataRow(HttpStatusCode.Created)]
-        [DataRow(HttpStatusCode.Conflict)]
+        [DataRow(HttpStatusCode.Created, 0)]
+        [DataRow(HttpStatusCode.Conflict, 1)]
         [DataTestMethod]
-        public void TestCreatingANewGame_AfterGameCreation(HttpStatusCode result)
+        public void TestCreatingANewGame(HttpStatusCode result, int repeatRequest)
         {
-            HttpResponseMessage rollResult = bowlingGameAPI.CreateNewGame();
+            var rollResult = bowlingGameAPI.CreateNewGame();
+
+            for (int repeat = 0; repeat < repeatRequest; repeat++)
+                rollResult = bowlingGameAPI.CreateNewGame();
 
             Assert.IsNotNull(rollResult);
-            Assert.AreEqual(rollResult.StatusCode, result);
+            Assert.AreEqual(rollResult.Result.StatusCode, result);
         }
 
         [DataRow(1, HttpStatusCode.Accepted)]

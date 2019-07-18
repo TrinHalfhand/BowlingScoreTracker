@@ -2,9 +2,16 @@
 
 namespace BowlingScoreTracker.Models
 {
+    public enum Status
+    {
+        Unknown, //default value
+        Active,
+        Complete
+    }
     public class FrameScores
     {
         public List<FrameScore> Frames { get; set; }
+        public Status GameStatus { get; set; }
     }
 
     public enum BonusType
