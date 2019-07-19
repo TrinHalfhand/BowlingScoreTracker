@@ -44,11 +44,21 @@ namespace BowlingScoreTracker.Service
                 });
 
             //setup totalscore content
-            int totalScore = _currentGame.Frames.Where(x => x.Rolls.Count > 0).Last<FrameScore>().ScoreTotal;
-            string jsonResponse = JsonConvert.SerializeObject(new TotalScore { Total = totalScore });
-            var message = await Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage(HttpStatusCode.OK));
-            message.Content = new StringContent(jsonResponse, System.Text.Encoding.UTF8, "application/json");
-            return message;
+            try
+            {
+                int totalScore = _currentGame.Frames.Where(x => x.Rolls.Count > 0).Last<FrameScore>().ScoreTotal;
+                string jsonResponse = JsonConvert.SerializeObject(new TotalScore { Total = totalScore });
+                var message = await Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage(HttpStatusCode.OK));
+                message.Content = new StringContent(jsonResponse, System.Text.Encoding.UTF8, "application/json");
+                return message;
+            }
+            catch
+            {
+                return await Task<HttpResponseMessage>.Factory.StartNew(() =>
+                {
+                    return new HttpResponseMessage(HttpStatusCode.BadRequest);
+                });
+            }
         }
 
         public async Task<HttpResponseMessage> CreateNewGame()
