@@ -2,8 +2,11 @@ using BowlingScoreTracker.Controllers;
 using BowlingScoreTracker.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace TestBowlingScoreTracker
 {
@@ -28,27 +31,27 @@ namespace TestBowlingScoreTracker
             var rollResult = bowlingGameAPI.Roll(roll);
 
             Assert.IsNotNull(rollResult);
-            Assert.AreEqual(rollResult.Result.StatusCode, result);
+            Assert.AreEqual(result, rollResult.Result.StatusCode);
         }
 
         [DataRow(HttpStatusCode.BadRequest)]
         [DataTestMethod]
         public void TestScoreByFrame_BeforeGameCreation(HttpStatusCode result)
         {
-            HttpResponseMessage scoreResult = bowlingGameAPI.GetScoreByFrame();
+            var scoreResult = bowlingGameAPI.GetScoreByFrame();
 
             Assert.IsNotNull(scoreResult);
-            Assert.AreEqual(scoreResult.StatusCode, result);
+            Assert.AreEqual(result, scoreResult.Result.StatusCode);
         }
 
         [DataRow(HttpStatusCode.BadRequest)]
         [DataTestMethod]
         public void TestTotalScore_BeforeGameCreation(HttpStatusCode result)
         {
-            HttpResponseMessage scoreResult = bowlingGameAPI.GetTotalScore();
+            var scoreResult = bowlingGameAPI.GetTotalScore();
 
             Assert.IsNotNull(scoreResult);
-            Assert.AreEqual(scoreResult.StatusCode, result);
+            Assert.AreEqual(result, scoreResult.Result.StatusCode);
         }
 
         [DataRow(HttpStatusCode.Created, 0)]
@@ -62,7 +65,7 @@ namespace TestBowlingScoreTracker
                 rollResult = bowlingGameAPI.CreateNewGame();
 
             Assert.IsNotNull(rollResult);
-            Assert.AreEqual(rollResult.Result.StatusCode, result);
+            Assert.AreEqual(result, rollResult.Result.StatusCode);
         }
 
         [DataRow(1, HttpStatusCode.Accepted)]
@@ -76,15 +79,15 @@ namespace TestBowlingScoreTracker
             var rollResult = bowlingGameAPI.Roll(roll);
 
             Assert.IsNotNull(rollResult);
-            Assert.AreEqual(rollResult.Result.StatusCode, result);
+            Assert.AreEqual(result, rollResult.Result.StatusCode);
         }
 
-        [DataRow(new int[] {1, 10}, HttpStatusCode.BadRequest, 1)]
-        [DataRow(new int[] { -1, 10 }, HttpStatusCode.Accepted, 2)]
-        [DataRow(new int[] { 1, 11 }, HttpStatusCode.BadRequest, 1)]
-        [DataRow(new int[] { 1, 9, 10, 10, 9, 1 }, HttpStatusCode.Accepted, 5)]
+        [DataRow(new int[] {1, 10}, HttpStatusCode.BadRequest)]
+        [DataRow(new int[] { -1, 10 }, HttpStatusCode.Accepted)]
+        [DataRow(new int[] { 1, 11 }, HttpStatusCode.BadRequest)]
+        [DataRow(new int[] { 1, 9, 10, 10, 9, 1 }, HttpStatusCode.Accepted)]
         [DataTestMethod]
-        public void TestRolls_Multiple(int[] rolls, HttpStatusCode result, int currentFrameNumber)
+        public void TestRolls_Multiple(int[] rolls, HttpStatusCode result)
         {
             HttpResponseMessage finalStatus = null;
             TestCreatingANewGame(HttpStatusCode.Created, 0);
@@ -97,37 +100,55 @@ namespace TestBowlingScoreTracker
             }
 
             //should confirm with scorebyframe if frame count matches
-            Assert.AreEqual(finalStatus.StatusCode, result);
+            Assert.AreEqual(result, finalStatus.StatusCode);
         }
 
-        [DataRow(10, 1, new int[] { 1, 9 })]
+        //[DataRow(10, 1, 2, new int[] { 1, 9 })]
+        [DataRow(60, 5, 10, new int[] { 1, 4, 4, 5, 6, 4, 5, 5, 10, 0, 1, 7, 3, 6, 4, 10, 2, 8, 6 })]
+        //[DataRow(300, 10, 10, new int[] { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 })]
         [DataTestMethod]
-        public void TestScoreByFrame_AfterGameCreation(int total, int frame, int[] rolls)
+        public async Task TestScoreByFrame_AfterGameCreation(int total, int frame, int frameCount, int[] rolls)
         {
-            HttpResponseMessage scoreResult = bowlingGameAPI.GetScoreByFrame();
+            TestRolls_Multiple(rolls, HttpStatusCode.Accepted);
+            var scoreResult = bowlingGameAPI.GetScoreByFrame();
             Assert.IsNotNull(scoreResult);
-            Assert.AreEqual(scoreResult.StatusCode, HttpStatusCode.OK);
+            Assert.AreEqual(scoreResult.Result.StatusCode, HttpStatusCode.OK);
 
-            var frameScores = JsonConvert.DeserializeObject<FrameScores>(scoreResult.Content.ToString());
+            string text = await scoreResult.Result.Content.ReadAsStringAsync().ConfigureAwait(false);
+            List<FrameScore> frameScores = JsonConvert.DeserializeObject<List<FrameScore>>(text);
+            int indexOfFrame = frame - 1;
 
             Assert.IsNotNull(frameScores);
-            Assert.IsNotNull(frameScores.Frames);
-            Assert.AreEqual(1, frameScores.Frames.Count);
-            Assert.AreEqual(total, frameScores.Frames[frame].ScoreTotal);
-            Assert.AreEqual(rolls[0], frameScores.Frames[frame].Rolls[0]);
-            Assert.AreEqual(rolls[1], frameScores.Frames[frame].Rolls[1]);
+            Assert.AreEqual(frameCount, frameScores.Count);
+            Assert.AreEqual(total, frameScores[indexOfFrame].ScoreTotal);
+
+            var rollList = frameScores.SelectMany(x => x.Rolls).ToList();
+
+            for (int count = 0; count < rolls.Count(); count++)
+            {
+                Assert.AreEqual(rolls[count], rollList[count]);
+            }
         }
 
-        [DataRow(10)]
+        [DataRow(new int[] { 1, 9 }, 10)]
+        [DataRow(new int[] { 1, 9, 10 }, 30)]
+        [DataRow(new int[] { 1, 9, 10, 10 }, 50)]
+        [DataRow(new int[] { 1, 9, 10, 10, 9, 0 }, 77)]
+        [DataRow(new int[] { 1, 9, 10, 10, 9, 1 }, 79)]
+        [DataRow(new int[] { 1, 4, 4, 5, 6, 4, 5, 5, 10, 0, 1, 7, 3, 6, 4, 10, 2, 8, 6 }, 133)]
+        [DataRow(new int[] { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 }, 300)]
         [DataTestMethod]
-        public void TestTotalScore_AfterGameCreation(int total)
+        public async Task TestTotalScore_AfterGameCreationAsync(int[] rolls, int total)
         {
-            HttpResponseMessage scoreResult = bowlingGameAPI.GetTotalScore();
+            TestRolls_Multiple(rolls, HttpStatusCode.Accepted);
+
+            var scoreResult = bowlingGameAPI.GetTotalScore();
             //in case more may be wanted in json message
             Assert.IsNotNull(scoreResult);
-            Assert.AreEqual(scoreResult.StatusCode, HttpStatusCode.OK);
+            Assert.AreEqual(HttpStatusCode.OK, scoreResult.Result.StatusCode);
 
-            var totalScore = JsonConvert.DeserializeObject<TotalScore>(scoreResult.Content.ToString());
+            string text = await scoreResult.Result.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var totalScore = JsonConvert.DeserializeObject<TotalScore>(text);
             Assert.AreEqual(total, totalScore.Total);
         }
     }
