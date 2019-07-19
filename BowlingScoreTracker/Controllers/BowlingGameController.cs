@@ -23,7 +23,12 @@ namespace BowlingScoreTracker.Controllers
     [ApiController]
     public class BowlingGameController : ControllerBase
     {
-        private readonly BowlingService currentGame = new BowlingService();
+        private IBowlingService currentGame;
+
+        public BowlingGameController(IBowlingService bowlingService)
+        {
+            currentGame = bowlingService;
+        }
 
         [HttpGet("ScoreByFrame")]
         public async Task<HttpResponseMessage> GetScoreByFrame()
