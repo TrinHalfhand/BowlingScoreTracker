@@ -1,5 +1,4 @@
-﻿using BowlingScoreTracker.Models;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace BowlingScoreTracker.Service

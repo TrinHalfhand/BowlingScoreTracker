@@ -52,8 +52,13 @@ namespace BowlingScoreTracker.Models
     public class FrameScore
     {
         [Range(0, 10, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
-        public int Roll { set {
-                Rolls.Add(value); } }
+        public int Roll
+        {
+            set
+            {
+                Rolls.Add(value);
+            }
+        }
         public List<int> Rolls { get; set; }
         public int FrameNumber { get; set; }
         public BonusType BonusType

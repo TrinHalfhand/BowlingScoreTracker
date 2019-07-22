@@ -1,6 +1,5 @@
 ﻿using BowlingScoreTracker.Models;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BowlingScoreTracker.Service
 {
-    public class BowlingService: IBowlingService
+    public class BowlingService : IBowlingService
     {
         private readonly FrameScores _currentGame;
 
