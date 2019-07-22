@@ -25,14 +25,17 @@ namespace BowlingScoreTracker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IBowlingService, BowlingService>()
-            .AddMvc()
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-            .AddSessionStateTempDataProvider();
-            
+                .AddMvc();
+
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
-            });
+                c.SwaggerDoc("v1", new Info
+                {
+                    Title = "BowlingScoreTracker API",
+                    Description = "API to supply a single session to track an entire bowling game for one user.",
+                    Version = "v1"
+                });
+            });           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,7 +48,7 @@ namespace BowlingScoreTracker
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "BowlingScoreTracker API V1");
             });
 
             app.UseMvc();

@@ -10,11 +10,11 @@ namespace BowlingScoreTracker.Service
 {
     public class BowlingService : IBowlingService
     {
-        private readonly FrameScores _currentGame;
+        private readonly BowlingGame _currentGame;
 
         public BowlingService()
         {
-            this._currentGame = new FrameScores();
+            this._currentGame = new BowlingGame();
         }
 
         public async Task<HttpResponseMessage> ScoreByFrame()
