@@ -1,3 +1,6 @@
 /TestBowlingScoreTracker/bin
 /TestBowlingScoreTracker/obj
 /.vs/BowlingScoreTracker/v16/Server/sqlite3
+*.dtbcache~Documentation
+*.suo~Documentation
+*.suo~Documentation_0
