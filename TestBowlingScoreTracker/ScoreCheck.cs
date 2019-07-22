@@ -1,5 +1,6 @@
 using BowlingScoreTracker.Controllers;
 using BowlingScoreTracker.Models;
+using BowlingScoreTracker.Service;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -18,7 +19,8 @@ namespace TestBowlingScoreTracker
         [TestInitialize]
         public void SetupBowlingSession()
         {
-            bowlingGameAPI = new BowlingGameController();
+            BowlingService bowlingService = new BowlingService();
+            bowlingGameAPI = new BowlingGameController(bowlingService);
         }
 
         [DataRow(1, HttpStatusCode.BadRequest)]
