@@ -10,7 +10,7 @@ namespace BowlingScoreTracker.Models
         Active,
         Complete
     }
-    public class FrameScores
+    public class BowlingGame
     {
         public List<FrameScore> Frames { get; set; }
         [DefaultValue(Status.Unknown)]
@@ -22,7 +22,6 @@ namespace BowlingScoreTracker.Models
                 return Frames[Frames.Count - 1];
             }
         }
-
         public FrameScore NextFrame
         {
             get
