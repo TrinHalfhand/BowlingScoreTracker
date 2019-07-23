@@ -70,18 +70,26 @@ namespace BowlingScoreTracker.Service
                 });
             else
             {
-                //clear frames and/or start new game
-                if (_currentGame.Frames != null)
-                    _currentGame.Frames = null;
-
-                _currentGame.Frames = new List<FrameScore>();
-                _currentGame.NextFrame = new FrameScore();
-
+                ClearAndStartNewFrame();
                 return await Task<HttpResponseMessage>.Factory.StartNew(() =>
                 {
                     return new HttpResponseMessage(HttpStatusCode.Created);
                 });
             }
+        }
+
+        /// <summary>
+        /// For a new game first get rid of the older one.
+        /// </summary>
+        private void ClearAndStartNewFrame()
+        {
+            //clear frames and/or start new game
+            if (_currentGame.Frames != null)
+            {
+                _currentGame.Frames = null;
+            }
+
+            _currentGame.Frames = new List<FrameScore>();
         }
 
         public async Task<HttpResponseMessage> Roll(int roll)

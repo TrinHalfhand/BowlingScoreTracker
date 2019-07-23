@@ -1,7 +1,6 @@
 ﻿using BowlingScoreTracker.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
@@ -35,7 +34,7 @@ namespace BowlingScoreTracker
                     Description = "API to supply a single session to track an entire bowling game for one user.",
                     Version = "v1"
                 });
-            });           
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

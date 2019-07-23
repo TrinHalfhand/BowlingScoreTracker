@@ -12,7 +12,20 @@ namespace BowlingScoreTracker.Models
     }
     public class BowlingGame
     {
-        public List<FrameScore> Frames { get; set; }
+        public List<FrameScore> Frames
+        {
+            get
+            {
+                return Frames;
+            }
+            set
+            {
+                if (Frames == null && value != null)
+                    NextFrame = new FrameScore(); //initialize frames
+
+                Frames = value;
+            }
+        }
         [DefaultValue(Status.Unknown)]
         public Status GameStatus { get; set; }
         public FrameScore CurrentFrame
