@@ -27,7 +27,7 @@ namespace BowlingScoreTracker.Service
                 });
 
             //setup totalscore content
-            string jsonResponse = JsonConvert.SerializeObject(_currentGame.Frames);
+            string jsonResponse = JsonConvert.SerializeObject(_currentGame.Frames.Where(x => x.Rolls.Count > 0).ToList());
             var message = await Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage(HttpStatusCode.OK));
             message.Content = new StringContent(jsonResponse, System.Text.Encoding.UTF8, "application/json");
             return message;
