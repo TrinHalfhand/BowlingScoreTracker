@@ -12,20 +12,7 @@ namespace BowlingScoreTracker.Models
     }
     public class BowlingGame
     {
-        public List<FrameScore> Frames
-        {
-            get
-            {
-                return Frames;
-            }
-            set
-            {
-                if (Frames == null && value != null)
-                    NextFrame = new FrameScore(); //initialize frames
-
-                Frames = value;
-            }
-        }
+        public List<FrameScore> Frames { get; set; }
         [DefaultValue(Status.Unknown)]
         public Status GameStatus { get; set; }
         public FrameScore CurrentFrame
@@ -35,7 +22,7 @@ namespace BowlingScoreTracker.Models
                 return Frames[Frames.Count - 1];
             }
         }
-        public FrameScore NextFrame
+        public FrameScore BowlingFrame
         {
             get
             {
@@ -43,14 +30,7 @@ namespace BowlingScoreTracker.Models
             }
             set
             {
-                value.Rolls = new List<int>();
-                value.FrameNumber = Frames.Count + 1;
                 Frames.Add(value);
-
-                if (Frames.Count <= 10)
-                    GameStatus = Status.Active;
-                else
-                    GameStatus = Status.Complete;
             }
         }
     }
