@@ -27,7 +27,7 @@ namespace BowlingScoreTracker.Service
                 });
 
             //setup totalscore content
-            string jsonResponse = JsonConvert.SerializeObject(_currentGame.Frames);
+            string jsonResponse = JsonConvert.SerializeObject(_currentGame.Frames.Where(x => x.Rolls.Count > 0).ToList());
             var message = await Task<HttpResponseMessage>.Factory.StartNew(() => new HttpResponseMessage(HttpStatusCode.OK));
             message.Content = new StringContent(jsonResponse, System.Text.Encoding.UTF8, "application/json");
             return message;
@@ -70,18 +70,28 @@ namespace BowlingScoreTracker.Service
                 });
             else
             {
-                //clear frames and/or start new game
-                if (_currentGame.Frames != null)
-                    _currentGame.Frames = null;
-
-                _currentGame.Frames = new List<FrameScore>();
-                _currentGame.NextFrame = new FrameScore();
-
+                ClearAndStartNewFrame();
                 return await Task<HttpResponseMessage>.Factory.StartNew(() =>
                 {
                     return new HttpResponseMessage(HttpStatusCode.Created);
                 });
             }
+        }
+
+        /// <summary>
+        /// For a new game first get rid of the older one.
+        /// </summary>
+        private void ClearAndStartNewFrame()
+        {
+            //clear frames and/or start new game
+            if (_currentGame.Frames != null)
+            {
+                _currentGame.Frames = null;
+            }
+
+            _currentGame.Frames = new List<FrameScore>();
+            _currentGame.GameStatus = Status.Active;
+            SetupNewFrame();
         }
 
         public async Task<HttpResponseMessage> Roll(int roll)
@@ -96,42 +106,64 @@ namespace BowlingScoreTracker.Service
             //get current frame
             var currentFrame = _currentGame.CurrentFrame;
 
-            //validate roll
-            bool validateRoll = ValidateRoll(roll, currentFrame);
-
-            if (!validateRoll)
+            if (!ValidateRoll(roll, currentFrame))
                 return await Task<HttpResponseMessage>.Factory.StartNew(() =>
                 {
                     return new HttpResponseMessage(HttpStatusCode.BadRequest);
                 });
 
-            currentFrame.Roll = roll;
+            currentFrame.Roll = roll; //set roll value
 
             //set score
             CalculateFrameScores(_currentGame.Frames, currentFrame.FrameNumber - 1);
 
             //Function to identify to head to next frame (and when finished)
-            if (currentFrame.FrameNumber == 10)
-            {
-                //can be up to 3 rolls if strike or spare in first 2 rolls
-                if (currentFrame.Rolls.Count == 3)
-                    _currentGame.GameStatus = Status.Complete;
-                else if (currentFrame.Rolls.Count > 1 && currentFrame.Rolls.Sum() < 10)
-                    _currentGame.GameStatus = Status.Complete;
-            }
-            else
-            {
-                //next set?
-                if (roll == 10)
-                    _currentGame.NextFrame = new FrameScore();
-                else if (currentFrame.Rolls.Count > 1)
-                    _currentGame.NextFrame = new FrameScore();
-            }
+            if (GameIsComplete(currentFrame))
+                _currentGame.GameStatus = Status.Complete;
+            else if ((roll == 10) || (currentFrame.Rolls.Count > 1))
+                SetupNewFrame();
 
             return await Task<HttpResponseMessage>.Factory.StartNew(() =>
             {
                 return new HttpResponseMessage(HttpStatusCode.Accepted);
             });
+        }
+
+        /// <summary>
+        /// Determine if the game is in the final 10th frame and all rolls have been completed.
+        /// </summary>
+        /// <param name="currentFrame"></param>
+        /// <returns></returns>
+        private bool GameIsComplete(FrameScore currentFrame)
+        {
+            bool result = false;
+
+            if (currentFrame.FrameNumber == 10)
+            {
+                //can be up to 3 rolls if strike or spare in first 2 rolls
+                if (currentFrame.Rolls.Count == 3)
+                    result = true;
+                else if (currentFrame.Rolls.Count > 1 && currentFrame.Rolls.Sum() < 10)
+                    result = true;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Sets new frame up to the 10th frame.
+        /// </summary>
+        private void SetupNewFrame()
+        {
+            //don't allow if on 10th frame
+            if (_currentGame.Frames == null || _currentGame.Frames.Count() < 10)
+            {
+                _currentGame.BowlingFrame = new FrameScore()
+                {
+                    Rolls = new List<int>(),
+                    FrameNumber = _currentGame.Frames.Count + 1
+                };
+            }
         }
 
         /// <summary>

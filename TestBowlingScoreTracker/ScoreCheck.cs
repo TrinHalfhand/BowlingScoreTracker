@@ -114,7 +114,9 @@ namespace TestBowlingScoreTracker
             Assert.AreEqual((int) result, finalStatus.StatusCode);
         }
 
-        [DataRow(10, 1, 2, new int[] { 1, 9 })]
+        [DataRow(10, 1, 1, new int[] { 1, 9 })]
+        [DataRow(20, 1, 2, new int[] { 1, 9, 10 })]
+        [DataRow(30, 2, 2, new int[] { 1, 9, 10 })]
         [DataRow(60, 5, 10, new int[] { 1, 4, 4, 5, 6, 4, 5, 5, 10, 0, 1, 7, 3, 6, 4, 10, 2, 8, 6 })]
         [DataRow(300, 10, 10, new int[] { 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 })]
         [DataTestMethod]
